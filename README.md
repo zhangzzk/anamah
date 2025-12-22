@@ -1,2 +1,2 @@
 # anamah
-<img src="bayes_loving_mahjonng.png" width="500px">
+<img src="bayes_loving_mahjong.png" width="600px">
