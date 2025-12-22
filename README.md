@@ -1,2 +1,2 @@
 # anamah
-![alt text](bayes_loving_mahjonng.png)
+<img src="bayes_loving_mahjonng.png" width="500px">
