@@ -25,6 +25,7 @@ $P$: one pair (y,y)
 > **Simplification**: Ignoring the winning of the opponents, instead, we focus on finding the minimal rounds of the player to win, or, a weighted combination of round numbers and rewards. We will ignore the rewards for now.
 
 The probability of winning round $t$ given the current hand $H_t$ and discard pool $A_t$ can be written as
+
 $$
 P_t(\text{WIN}|H_t)=P(x_t|W_t) P(W_t|A_t) w_{a_t}(\pi|H_t,x_t) \boldsymbol{1}(\pi)
 $$
