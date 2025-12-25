@@ -41,6 +41,7 @@ $P$: one pair $(y,y)$
 > **Remark**: Ignoring the winning of the opponents. We focus on finding the minimal rounds for the player to win, or a weighted combination of round numbers and rewards. Rewards are ignored for now.
 
 The probability of winning at round $t$ given current hand $H_t$ and discard pool $A_t$ is written as
+
 $$
 \boxed{
 P_t(\text{WIN}\mid H_t)
@@ -48,7 +49,7 @@ P_t(\text{WIN}\mid H_t)
 P(x_t\mid W_t)\;
 P(W_t\mid A_t,H_t)\;
 w_{a_t}(\pi\mid H_t,x_t)\;
-\boldsymbol{1}(\pi)
+\mathbf{1}(\pi)
 }
 $$
 
@@ -57,9 +58,10 @@ where:
 - $P(x_t\mid W_t)$: probability of drawing tile $x_t$ from the remaining wall $W_t$  
 - $P(W_t\mid A_t,H_t)$: probability of the remaining wall given discard history and player hand  
 - $w_{a_t}(\pi\mid H_t,x_t)$: **deterministic optimization**, selecting the discard $a_t$ that leads to the optimal next hand  
-- $\boldsymbol{1}(\pi)$: indicator of a valid winning formation
+- $\mathbf{1}(\pi)$: indicator of a valid winning formation
 
 with
+
 $$
 H_t^+ = (H_t \cup \{x_t\}) \setminus \{a_t\}, 
 \qquad
@@ -76,13 +78,15 @@ $$
 ## Probabilistic remaining wall
 
 Consider
+
 $$
 P(W_t\mid A_t,H_t).
 $$
 
 The remaining wall is
+
 $$
-W_t = T \setminus H_t \setminus A_t \setminus H_t^{i\neq我},
+W_t = T \setminus H_t \setminus A_t \setminus H_t^{i\neq\text{我}},
 $$
 
 where:
@@ -90,11 +94,12 @@ where:
 - $T$: fixed total tile set  
 - $H_t$: known player hand  
 - $A_t$: known discard history  
-- $H_t^{i\neq我}$: unknown opponent hands
+- $H_t^{i\neq\text{我}}$: unknown opponent hands
 
 The problem reduces to the **opponent-hand likelihood**
+
 $$
-P(H_t^{i\neq我}\mid H_t,A_t).
+P(H_t^{i\neq\text{我}}\mid H_t,A_t).
 $$
 
 > **Remark**: Modeling the opponent-hand likelihood is the core challenge.  
@@ -103,11 +108,13 @@ $$
 > **Simplification 2**: Opponents are independent and do not condition their decisions on each other.
 
 Under this assumption,
+
 $$
-P(H_t^{i\neq我}\mid H_t,A_t)
+P(H_t^{i\neq\text{我}}\mid H_t,A_t)
 =
-\prod_{i\neq我} P(H_t^i\mid A_t^i),
+\prod_{i\neq\text{我}} P(H_t^i\mid A_t^i),
 $$
+
 where $A_t^i$ is the discard history of opponent $i$.
 
 ---
@@ -115,12 +122,15 @@ where $A_t^i$ is the discard history of opponent $i$.
 ## Opponent hand inference (Bayesian update)
 
 For a fixed opponent $i$, let
+
 $$
 A_{1:t}^i = (a_1^i,\dots,a_t^i)
 $$
+
 denote the observed discard sequence.
 
 The posterior over a hypothetical concealed hand $H$ is updated sequentially via
+
 $$
 \boxed{
 P(H\mid A_{1:t}^i)
@@ -146,6 +156,7 @@ Let $\widehat h(H)$ be a cheap approximation of shanten (向听数),
 measuring distance to a winning hand (4 melds + 1 pair).
 
 Define the shanten change for discarding tile $x$:
+
 $$
 \Delta h(x;H)
 =
@@ -170,6 +181,7 @@ For tile $x\in H$:
 ### Discard score and likelihood
 
 Define a discard energy:
+
 $$
 E(x;H)
 =
@@ -183,6 +195,7 @@ E(x;H)
 $$
 
 The discard likelihood is
+
 $$
 \boxed{
 P(\text{discard }x\mid H)
@@ -200,14 +213,17 @@ moves that increase shanten or destroy structure.
 ## Optimal discard decision (one-step optimization)
 
 At round $t$, after drawing a tile, the player holds a 14-tile hand $H_t^+$ and must choose a discard
+
 $$
 a_t \in H_t^+.
 $$
 
 We assume that the posterior distributions
+
 $$
-P(H_t^i \mid A_t^i), \qquad i \neq 我
+P(H_t^i \mid A_t^i), \qquad i \neq \text{我}
 $$
+
 over opponents’ concealed hands are already available from the inference step.
 
 > **Simplification 3**: For now, we ignore opponent calling and deal-in risk, and consider only the effect of opponents
@@ -219,16 +235,18 @@ through the remaining wall distribution.
 
 Given the discard pool $A_t$, player hand $H_t$, and opponent posteriors,
 the expected remaining count of tile $x$ in the wall is
+
 $$
 c_x
 =
-\mathbb E_{H_t^{i\neq我}}
+\mathbb E_{H_t^{i\neq\text{我}}}
 \big[
-\text{count of } x \text{ not in } H_t \cup A_t \cup H_t^{i\neq我}
+\text{count of } x \text{ not in } H_t \cup A_t \cup H_t^{i\neq\text{我}}
 \big].
 $$
 
 The draw probability is approximated by
+
 $$
 P(x \mid W_t)
 =
@@ -246,6 +264,7 @@ Let:
 - $\mathcal W(H)$ be the wait set (等牌集合), i.e. tiles that complete the hand.
 
 Define
+
 $$
 V(H)
 =
@@ -262,11 +281,13 @@ $$
 ### One-step expectimax evaluation
 
 For each discard candidate $a_t$, define
+
 $$
 H_t^- = H_t^+ \setminus \{a_t\}.
 $$
 
 The expected value of discarding $a_t$ is approximated by
+
 $$
 Q(a_t)
 =
@@ -277,6 +298,7 @@ $$
 This corresponds to a one-step lookahead over the next draw, marginalizing over wall uncertainty.
 
 The optimal discard decision is
+
 $$
 \boxed{
 a_t^*
