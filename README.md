@@ -14,4 +14,4 @@ __Heavily vibe coded.__
 
 ---
 
-> Here to find the basic [***formulation***](formulation.pdf).
+> Here to find the basic [***formulation***](mahjong_bayes.html).
