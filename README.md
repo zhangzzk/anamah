@@ -17,8 +17,7 @@ __Heavily vibe coded.__
 ## Formulation
 
 $$
-\exists\,\pi:\; \sum_{k=1}^{4} M_k + P = H, \qquad |H| = 14, \qquad 
-M_k \in \{\text{Chow}, \text{Pung}, \text{Kong}\}, \qquad P = \text{Pair}
+\exists\,\pi:\; \sum_{k=1}^{4} M_k + P = H, \qquad |H| = 14, \qquad M_k \in \{\text{Chow}, \text{Pung}, \text{Kong}\}, \qquad P = \text{Pair}
 $$
 
 $H$: a winning hand  
@@ -63,9 +62,7 @@ where:
 with
 
 $$
-H_t^+ = (H_t \cup \{x_t\}) \setminus \{a_t\}, 
-\qquad
-A_t = A_{t-1} \cup \{a_t\} \cup \{a_{t,\text{opponents}}\}.
+H_t^+ = (H_t \cup \{x_t\}) \setminus \{a_t\}, \qquad A_t = A_{t-1} \cup \{a_t\} \cup \{a_{t,\text{opp}}\}.
 $$
 
 > **Remark**: $A_t$ is treated as a pool here. In principle, it is a time-ordered discard sequence conditioned on players.  
@@ -86,7 +83,7 @@ $$
 The remaining wall is
 
 $$
-W_t = T \setminus H_t \setminus A_t \setminus H_t^{i\neq\text{我}},
+W_t = T \setminus H_t \setminus A_t \setminus H_t^{i\neq\text{me}},
 $$
 
 where:
@@ -94,12 +91,12 @@ where:
 - $T$: fixed total tile set  
 - $H_t$: known player hand  
 - $A_t$: known discard history  
-- $H_t^{i\neq\text{我}}$: unknown opponent hands
+- $H_t^{i\neq\text{me}}$: unknown opponent hands
 
 The problem reduces to the **opponent-hand likelihood**
 
 $$
-P(H_t^{i\neq\text{我}}\mid H_t,A_t).
+P(H_t^{i\neq\text{me}}\mid H_t,A_t).
 $$
 
 > **Remark**: Modeling the opponent-hand likelihood is the core challenge.  
@@ -110,9 +107,9 @@ $$
 Under this assumption,
 
 $$
-P(H_t^{i\neq\text{我}}\mid H_t,A_t)
+P(H_t^{i\neq\text{me}}\mid H_t,A_t)
 =
-\prod_{i\neq\text{我}} P(H_t^i\mid A_t^i),
+\prod_{i\neq\text{me}} P(H_t^i\mid A_t^i),
 $$
 
 where $A_t^i$ is the discard history of opponent $i$.
@@ -133,10 +130,7 @@ The posterior over a hypothetical concealed hand $H$ is updated sequentially via
 
 $$
 \boxed{
-P(H\mid A_{1:t}^i)
-\propto
-P(a_t^i\mid H)\;
-P(H\mid A_{1:t-1}^i)
+P(H\mid A_{1:t}^i) \propto P(a_t^i\mid H)\; P(H\mid A_{1:t-1}^i)
 }
 $$
 
@@ -152,15 +146,13 @@ hand efficiency and simple structure.
 
 ### Approximate shanten (向听数)
 
-Let $\widehat h(H)$ be a cheap approximation of shanten (向听数),
+Let $\widehat{h}(H)$ be a cheap approximation of shanten (向听数),
 measuring distance to a winning hand (4 melds + 1 pair).
 
 Define the shanten change for discarding tile $x$:
 
 $$
-\Delta h(x;H)
-=
-\widehat h(H\setminus\{x\})-\widehat h(H).
+\Delta h(x;H) = \widehat{h}(H\setminus\{x\})-\widehat{h}(H).
 $$
 
 Only relative values of $\Delta h$ are required.
@@ -183,15 +175,7 @@ For tile $x\in H$:
 Define a discard energy:
 
 $$
-E(x;H)
-=
-\alpha\,\Delta h(x;H)
-+
-\beta\,v_{\text{struct}}(x;H)
-+
-\gamma\,\mathbf{1}_{\text{main}}(x;H),
-\qquad
-\alpha,\beta,\gamma>0.
+E(x;H) = \alpha\,\Delta h(x;H) + \beta\,v_{\text{struct}}(x;H) + \gamma\,\mathbf{1}_{\text{main}}(x;H), \qquad \alpha,\beta,\gamma>0.
 $$
 
 The discard likelihood is
@@ -221,7 +205,7 @@ $$
 We assume that the posterior distributions
 
 $$
-P(H_t^i \mid A_t^i), \qquad i \neq \text{我}
+P(H_t^i \mid A_t^i), \qquad i \neq \text{me}
 $$
 
 over opponents’ concealed hands are already available from the inference step.
@@ -239,18 +223,16 @@ the expected remaining count of tile $x$ in the wall is
 $$
 c_x
 =
-\mathbb E_{H_t^{i\neq\text{我}}}
+\mathbb E_{H_t^{i\neq\text{me}}}
 \big[
-\text{count of } x \text{ not in } H_t \cup A_t \cup H_t^{i\neq\text{我}}
+\text{count of } x \text{ not in } H_t \cup A_t \cup H_t^{i\neq\text{me}}
 \big].
 $$
 
 The draw probability is approximated by
 
 $$
-P(x \mid W_t)
-=
-\frac{c_x}{\sum_y c_y}.
+P(x \mid W_t) = \frac{c_x}{\sum_y c_y}.
 $$
 
 ---
@@ -260,7 +242,7 @@ $$
 > **Remark**: We define a cheap hand value function $V(H)$ that approximates the probability of winning soon. It favors ready hands, hands with many available waits, and hands closer to completion.
 
 Let:
-- $\widehat h(H)$ be the approximate shanten (向听数),
+- $\widehat{h}(H)$ be the approximate shanten (向听数),
 - $\mathcal W(H)$ be the wait set (等牌集合), i.e. tiles that complete the hand.
 
 Define
@@ -268,11 +250,11 @@ Define
 $$
 V(H)
 =
-\mathbf 1(\widehat h(H)=0)\;
+\mathbf 1(\widehat{h}(H)=0)\;
 \sum_{x\in\mathcal W(H)} P(x\mid W_t)
 \;+\;
-\mathbf 1(\widehat h(H)>0)\;
-\exp\!\big(-\lambda\,\widehat h(H)\big),
+\mathbf 1(\widehat{h}(H)>0)\;
+\exp\!\big(-\lambda\,\widehat{h}(H)\big),
 \qquad \lambda>0.
 $$
 
@@ -301,10 +283,7 @@ The optimal discard decision is
 
 $$
 \boxed{
-a_t^*
-=
-\arg\max_{a_t\in H_t^+}
-Q(a_t)
+a_t^* = \arg\max_{a_t\in H_t^+} Q(a_t)
 }
 $$
 
