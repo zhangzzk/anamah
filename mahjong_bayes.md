@@ -1,3 +1,15 @@
+<style>
+body {
+  font-family: 
+    "Noto Sans CJK SC",
+    "PingFang SC",
+    "Hiragino Sans GB",
+    "Microsoft YaHei",
+    sans-serif;
+}
+</style>
+
+
 ## Formulation
 
 $$
