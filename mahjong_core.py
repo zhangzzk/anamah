@@ -6,7 +6,6 @@ from collections import Counter
 
 # Game Constants
 SUITS = ['B', 'C', 'D']  # Bamboo, Characters, Dots
-SUITS = ['B', 'C', 'D']  # Bamboo, Characters, Dots
 TILES = [f"{s}{i}" for s in SUITS for i in range(1, 10)]
 
 def get_all_tiles() -> list[str]:

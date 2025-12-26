@@ -197,10 +197,7 @@ def cli():
                 print(">> Me (After Call) - Must Discard.")
                 pending_discard = False
             else:
-                action = input("Action: [D]raw: ").upper().strip()
-                # Assuming D is default or typed
-                # We could support 'Kong' here later
-                
+                # Direct to Draw
                 dt = input(">> I Draw: ").strip()
                 dt = normalize_tile(dt)
                 if not is_valid_tile(dt):
@@ -216,8 +213,16 @@ def cli():
                 
             # Advise
             visible = get_visible_tiles()
-            best, val = agent.optimize_discard(game_state["hand"], visible)
-            print(f"AI Suggests: {best} ({val:.3f})")
+            
+            # 1. Bayes
+            best_bayes, val_bayes = agent.optimize_discard(game_state["hand"], visible, use_inference=True)
+            # 2. Naive
+            best_naive, val_naive = agent.optimize_discard(game_state["hand"], visible, use_inference=False)
+            
+            print(f"AI Suggests (Bayes): {best_bayes} ({val_bayes:.3f}) | (Naive): {best_naive} ({val_naive:.3f})")
+            
+            # Determine best for prompt
+            best = best_bayes
             
             # Discard
             discard_tile = None
@@ -233,12 +238,28 @@ def cli():
                     print(f"Tile {disc} not in hand.")
             
             # Now, did anyone call it?
-            call = input(f"Did opponents call {discard_tile}? [N]o / [A] / [B] / [C]: ").upper().strip() or "N"
-            if call in ["A", "B", "C"]:
+            call_input = input(f"Did opponents call {discard_tile}? [N] / [Player] (add 'W' for Win): ").upper().strip() or "N"
+            
+            # Check for Win (e.g. "A W", "B WIN")
+            if " " in call_input or "W" in call_input:
+                # Naive parse: find player in string
+                winner = None
+                for p in ["A", "B", "C"]:
+                    if p in call_input:
+                        winner = p
+                        break
+                if winner:
+                    print(f"!!! {winner} RON on {discard_tile} !!!")
+                    print("Game continues...")
+                    current_idx = (players.index(winner) + 1) % 4
+                    continue
+
+            # Standard Pong
+            if call_input in ["A", "B", "C"]:
                 # Opponent called it.
-                perform_pong(discard_tile, call)
-                print(f"Turn jumps to {call}.")
-                current_idx = players.index(call)
+                perform_pong(discard_tile, call_input)
+                print(f"Turn jumps to {call_input}.")
+                current_idx = players.index(call_input)
                 # Skip normal rotation
                 continue
             
@@ -246,10 +267,18 @@ def cli():
             game_state["discards"].append({"tile": discard_tile, "who": "Me"})
             current_idx = (current_idx + 1) % 4
             
-        # === OPPONENT TURN ===
+
         else:
-            # They draw hiddenly. They discard openly.
-            t = input(f">> {current_player} Discards: ").strip()
+            # They draw hiddenly. They discard openly. (Or they Win)
+            t = input(f">> {current_player} Discards (or [W]in): ").strip()
+            
+            # Handle Self-Draw Win (Tsumo)
+            if t.upper() in ["W", "WIN", "TSUMO"]:
+                print(f"!!! {current_player} TSUMO (Self-Draw Win) !!!")
+                print("Game continues...")
+                current_idx = (current_idx + 1) % 4
+                continue
+
             t = normalize_tile(t)
             if not is_valid_tile(t):
                 print(f"Invalid tile '{t}'"); continue
@@ -265,8 +294,8 @@ def cli():
             # 2. Can I Pon?
             can_pong = check_pong(game_state["hand"], t)
             if can_pong:
-                pon = input(f"Can Pon {t}. Do it? [Y]/n: ").upper()
-                if pon == "Y":
+                pon = input(f"Can Pon {t}. Do it? [Y]/n: ").upper().strip() or "Y"
+                if pon != "N":
                     perform_pong(t, "Me")
                     current_idx = 0 # Jump to Me
                     pending_discard = True
@@ -276,17 +305,31 @@ def cli():
             # 3. Did Other Opponents Call?
             # Filter out current player and me
             others = [p for p in ["A", "B", "C"] if p != current_player]
-            call = input(f"Did {others} call? [N]o / [Player]: ").upper().strip() or "N"
+            call_input = input(f"Did {others} call? [N] / [Player] (add 'W' for Win): ").upper().strip() or "N"
             
-            if call in ["A", "B", "C"]:
-                if call == current_player:
+            # Check for Win (e.g. "C W")
+            if " " in call_input or "W" in call_input:
+                winner = None
+                for p in ["A", "B", "C"]:
+                    if p in call_input:
+                        winner = p
+                        break
+                if winner and winner != current_player: # Basic check
+                    print(f"!!! {winner} RON on {t} !!!")
+                    print("Game continues...")
+                    current_idx = (players.index(winner) + 1) % 4
+                    continue
+
+            if call_input in ["A", "B", "C"]:
+                if call_input == current_player:
                     print("Error: Player cannot call own tile (except Kan, unsupported).")
                 else:
-                    perform_pong(t, call)
-                    current_idx = players.index(call)
+                    perform_pong(t, call_input)
+                    current_idx = players.index(call_input)
                     continue
             
             # If No One Called
+            agent.register_opponent_discard(current_player, t)
             game_state["discards"].append({"tile": t, "who": current_player})
             current_idx = (current_idx + 1) % 4
                 

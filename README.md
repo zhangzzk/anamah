@@ -4,7 +4,7 @@
 
 ---
 
-__A definitely-not-the-best solution to Mahjong (Chinese style in default).__
+__A definitely-not-the-best solution to Mahjong (Sichuan style in default).__
 
 __POMDP-like. Arguably not analytical.__
 
