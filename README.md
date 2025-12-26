@@ -12,6 +12,9 @@ __Bayesian opponent hand inference + One-step lookahead play optimization.__
 
 __Heavily vibe coded.__
 
+Here to find the basic [***formulation***](mahjong_bayes.pdf).
+
 ---
 
-> Here to find the basic [***formulation***](mahjong_bayes.pdf).
+**Agent mode:**
+> python game_tracker.py

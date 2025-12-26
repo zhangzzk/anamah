@@ -6,6 +6,7 @@ from collections import Counter
 
 # Game Constants
 SUITS = ['B', 'C', 'D']  # Bamboo, Characters, Dots
+SUITS = ['B', 'C', 'D']  # Bamboo, Characters, Dots
 TILES = [f"{s}{i}" for s in SUITS for i in range(1, 10)]
 
 def get_all_tiles() -> list[str]:
@@ -25,7 +26,8 @@ class HandChecker:
         2. Must consist of exactly 1 pair and 4 valid melds (triplets or sequences).
         3. Must contain tiles from at most 2 distinct suits (Qing Yise / Definite mixed rule).
         """
-        if len(hand_tiles) != 14:
+
+        if len(hand_tiles) not in [14, 11, 8, 5, 2]:
             return False
             
         # Constraint: Max 2 suits allowed
