@@ -52,7 +52,7 @@ where:
 
 - $P(x_t\mid W_t)$: probability of drawing tile $x_t$ from the remaining wall $W_t$  
 - $P(W_t\mid A_t,H_t)$: probability of the remaining wall given discard history and player hand  
-- $w_{a_t}(\pi\mid H_t,x_t)$: **deterministic optimization**, selecting the discard $a_t$ that leads to the optimal next hand  
+- $w_{a_t}(\pi\mid H_t,x_t)$: **optimization**, selecting the discard $a_t$ that leads to the optimal next hand  
 - $\boldsymbol{1}(\pi)$: indicator of a valid winning formation
 
 with
@@ -178,6 +178,8 @@ E(x;H)
 \alpha,\beta,\gamma>0.
 $$
 
+> **Remark**: This is one of the two core models in this framework. Analytical and empirical.
+
 The discard likelihood is
 $$
 \boxed{
@@ -245,13 +247,37 @@ Define
 $$
 V(H)
 =
-\mathbf 1(\widehat h(H)=0)\;
-\sum_{x\in\mathcal W(H)} P(x\mid W_t)
-\;+\;
-\mathbf 1(\widehat h(H)>0)\;
-\exp\!\big(-\lambda\,\widehat h(H)\big),
-\qquad \lambda>0.
+\exp\!\bigl(-\lambda\, h(H)\bigr)
+\left(
+1
++
+\eta
+\sum_{x:\, h(H \cup \{x\}) = h(H) - 1}
+P(x \mid W_t)
+\right)
+\\
+\times
+\exp\!\bigl(\kappa\, Q_{\mathrm{shape}}(H)\bigr)
+\exp\!\bigl(-\mu\, C_{\mathrm{spread}}(H)\bigr).
 $$
+
+Shape score:
+$$
+Q_{\mathrm{shape}}(H)
+=
+N_{\mathrm{ryanmen}}(H)
++ \tfrac{1}{2} N_{\mathrm{kanchan}}(H)
++ \tfrac{1}{2} N_{\mathrm{pair}}(H),
+$$
+
+Spread penalty:
+$$
+C_{\mathrm{spread}}(H)
+=
+\#\{\text{suits with at least 3 tiles in } H\} - 1.
+$$
+
+> **Remark**: This is the other core model in this framework.
 
 ---
 

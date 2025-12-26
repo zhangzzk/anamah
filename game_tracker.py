@@ -8,17 +8,12 @@ from mahjong_bayes import BayesianMahjong
 app = FastAPI()
 agent = BayesianMahjong()
 
-# --- Store ---
-# discards: List[dict] -> [{"tile": "1B", "who": "A"}, ...]
-# melds: List[List[str]] -> [["1B", "1B", "1B"], ...]
-# melds: Dict[str, List[List[str]]] -> {"Me": [], "A": [], "B": [], "C": []}
 game_state = {
     "hand": [], 
     "discards": [], 
     "melds": {"Me": [], "A": [], "B": [], "C": []}
 }
 
-# --- Models ---
 class InitRequest(BaseModel):
     initial_hand: List[str]
 
@@ -29,7 +24,7 @@ class AdviceResponse(BaseModel):
 
 # --- Helpers ---
 def get_visible_tiles():
-    """Flatten discards and melds for the agent."""
+    """Get visible."""
     visible = [d["tile"] for d in game_state["discards"]]
     for player_melds in game_state["melds"].values():
         for m in player_melds:
@@ -40,24 +35,13 @@ def check_pong(hand: List[str], tile: str) -> bool:
     return hand.count(tile) >= 2
 
 def perform_pong(tile: str, who: str):
-    """
-    Register a Pong for 'who'. 
-    If who == "Me", remove from hand.
-    Always add to melds.
-    """
+    """Perform Pong."""
     if who == "Me":
-        # Remove 2 instances
         if game_state["hand"].count(tile) < 2:
             print("Error: Impossible State. Pong called but < 2 tiles in hand.")
             return
         game_state["hand"].remove(tile)
         game_state["hand"].remove(tile)
-        
-    # Add to melds (3 tiles)
-    # Note: Logic usually implies 1 tile came from discard, 2 from hand.
-    # But for "Visible Tiles" counting, we just need to know these 3 are now out.
-    # The discarded tile was NOT added to 'discards' list if it was called (usually).
-    # We will assume calling logic handles the 'not-in-discard-pool' aspect.
     game_state["melds"][who].append([tile, tile, tile])
 
 def normalize_tile(t: str) -> str:
@@ -104,14 +88,11 @@ def get_advice():
 
 @app.post("/discard")
 def discard(tile: str, who: str = "Me"):
-    # If it's me, remove from hand
     if who == "Me" and tile in game_state["hand"]:
         game_state["hand"].remove(tile)
-    
     game_state["discards"].append({"tile": tile, "who": who})
     return {"hand": game_state["hand"]}
 
-# --- CLI Helpers ---
 def print_table():
     print("\n" + "="*60)
     print(f"MY HAND ({len(game_state['hand'])}): {sorted(game_state['hand'])}")

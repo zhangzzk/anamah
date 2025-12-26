@@ -6,8 +6,6 @@
 
 __A definitely-not-the-best solution to Mahjong (Sichuan style in default).__
 
-__POMDP-like. Arguably not analytical.__
-
 __Bayesian opponent hand inference + One-step lookahead play optimization.__
 
 __Heavily vibe coded.__
